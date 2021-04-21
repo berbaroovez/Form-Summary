@@ -4,19 +4,17 @@ import styled from "styled-components";
 import { HeaderType } from "../utils/projectInterfaces";
 interface Step2Props {
   currentStep: number;
-  worksheet: XLSX.WorkSheet;
   worksheetHeaders: HeaderType[];
   setWorksheetHeaders: Dispatch<SetStateAction<HeaderType[]>>;
-  setFinalWorkheet: Dispatch<SetStateAction<object>>;
+  updateSheetAndCreateObject: () => void;
 }
 
 //trying out typing a function without using an arrow function
 const Step2: React.FC<Step2Props> = ({
   currentStep,
-  worksheet,
   worksheetHeaders,
   setWorksheetHeaders,
-  setFinalWorkheet,
+  updateSheetAndCreateObject,
 }) => {
   const onHeaderUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
     //On Change handler for if the info should be hidden
@@ -72,16 +70,25 @@ const Step2: React.FC<Step2Props> = ({
           </HeaderRow>
         ))}
       </EditorWrapper>
+      <UpdateButton onClick={updateSheetAndCreateObject}>Advance</UpdateButton>
     </HeaderEditorWrapper>
   );
 };
 
-const HeaderEditorWrapper = styled.div``;
+const HeaderEditorWrapper = styled.div`
+  width: 600px;
+  margin: 0 auto;
+`;
 const Heading = styled.div``;
-const EditorWrapper = styled.div``;
+const EditorWrapper = styled.div`
+  display: grid;
+  justify-content: center;
+`;
 const HeaderRow = styled.div`
   input {
     margin-right: 60px;
   }
 `;
+
+const UpdateButton = styled.button``;
 export default Step2;

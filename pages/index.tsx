@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from "react";
 import Step1 from "../components/Step1";
 import Step2 from "../components/Step2";
+import Step3 from "../components/Step3";
 import XLSX from "xlsx";
-import { HeaderType } from "../utils/projectInterfaces";
+import { HeaderType, GenericObject } from "../utils/projectInterfaces";
+
+//needed this to deal with not knowing the shape of the object that each row of the worksheet is
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [worksheet, setWorksheet] = useState<XLSX.WorkSheet>({});
   const [worksheetHeaders, setWorksheetHeaders] = useState<HeaderType[]>([]);
-  const [finalWorksheet, setFinalWorkheet] = useState<object>({});
+  const [finalWorksheet, setFinalWorkheet] = useState<GenericObject>({});
 
   useEffect(() => {
     if (worksheet) {
       getHeaders();
     }
   }, [worksheet]);
+  useEffect(() => {
+    console.log("Final Work Sheet", finalWorksheet);
+  }, [finalWorksheet]);
+
   // useEffect(() => {
   //   if (worksheetHeaders.length > 0) {
   //     console.log("Headers", worksheetHeaders);
@@ -67,9 +75,41 @@ export default function Home() {
     setWorksheetHeaders(columnNames);
   };
 
+  const updateSheetAndCreateObject = () => {
+    worksheetHeaders.forEach((header) => {
+      worksheet[header.cellName] = {
+        t: "s" /* type: string */,
+        v: header.value /* value */,
+      };
+    });
+
+    var worksheet_json_object: object[] = XLSX.utils.sheet_to_json(worksheet);
+
+    worksheet_json_object.forEach((row, index) => {
+      var tempRow: GenericObject = row;
+      tempRow = row;
+      worksheetHeaders.forEach((header) => {
+        if (tempRow[header.value]) {
+          var tempValue = tempRow[header.value];
+          tempRow[header.value] = { value: tempValue, hidden: header.hidden };
+        }
+      });
+
+      // check to see if a order object exists in localstorage so we dont override completed
+      if (finalWorksheet.length > 0) {
+        tempRow["Completed"] = finalWorksheet[index]["Completed"];
+      } else {
+        tempRow["Completed"] = false;
+      }
+    });
+
+    setFinalWorkheet(worksheet_json_object);
+    setCurrentStep(3);
+  };
+
   return (
     <div>
-      <div>{currentStep}</div>
+      {/* <div>{currentStep}</div>
       <button
         onClick={() => {
           setCurrentStep((prevCount) => {
@@ -87,15 +127,20 @@ export default function Home() {
         }}
       >
         Next
-      </button>
+      </button> */}
 
       <Step1 currentStep={currentStep} onFileUpload={onFileUpload} />
       <Step2
         currentStep={currentStep}
-        worksheet={worksheet}
         worksheetHeaders={worksheetHeaders}
         setWorksheetHeaders={setWorksheetHeaders}
-        setFinalWorkheet={setFinalWorkheet}
+        updateSheetAndCreateObject={updateSheetAndCreateObject}
+      />
+
+      <Step3
+        currentStep={currentStep}
+        finalWorksheet={finalWorksheet}
+        setFinalWorksheet={setFinalWorkheet}
       />
     </div>
   );
