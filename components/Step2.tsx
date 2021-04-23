@@ -96,7 +96,7 @@ const EditorWrapper = styled.div`
   justify-content: center;
 `;
 const HeaderRow = styled.div`
-  padding-bottom: 2px;
+  padding-bottom: 10px;
   display: grid;
   grid-template-columns: 0.2fr 1fr 1fr;
   align-items: center;
