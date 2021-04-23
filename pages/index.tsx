@@ -125,6 +125,7 @@ export default function Home() {
       //regular expression to check for a pattern of letters and then a 1
       if (re.test(cells[i])) {
         columnNames.push({
+          id: i,
           value: worksheet[cells[i]].v,
           cellName: cells[i],
           hidden: false,
@@ -207,6 +208,7 @@ export default function Home() {
         {/* we do this check because we need to wait for finalworksheet to be filled before we load step 3   */}
         {currentStep === 3 ? (
           <Step3
+            worksheetHeaders={worksheetHeaders}
             currentStep={currentStep}
             finalWorksheet={finalWorksheet}
             setFinalWorksheet={setFinalWorkheet}

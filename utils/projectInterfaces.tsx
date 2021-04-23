@@ -1,4 +1,5 @@
 export interface HeaderType {
+  id: number;
   value: string;
   cellName: string;
   hidden: boolean;

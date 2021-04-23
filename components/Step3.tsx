@@ -5,16 +5,22 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { GenericObject } from "../utils/projectInterfaces";
+
 import { useHotkeys } from "react-hotkeys-hook";
 import styled from "styled-components";
+
+import { HeaderType } from "../utils/projectInterfaces";
+import { GenericObject } from "../utils/projectInterfaces";
+
 interface Step3Props {
+  worksheetHeaders: HeaderType[];
   currentStep: number;
   finalWorksheet: GenericObject[];
   setFinalWorksheet: Dispatch<SetStateAction<GenericObject[]>>;
 }
 
 const Step3: FC<Step3Props> = ({
+  worksheetHeaders,
   currentStep,
   finalWorksheet,
   setFinalWorksheet,
@@ -74,38 +80,40 @@ const Step3: FC<Step3Props> = ({
   return (
     <CardWrapper>
       <div>
-        <h1>{currentCardIndex + "/" + 52}</h1>
-        {orderObjectKeys.map((key) => {
-          if (key === "Completed") {
-            return (
-              <p id="completed" key={key}>
-                Completed:
-                <input
-                  type="checkbox"
-                  checked={currentOrder["Completed"]}
-                  onChange={() => {
-                    var updateOrders = [...finalWorksheet];
-                    updateOrders[currentCardIndex]["Completed"] = !updateOrders[
-                      currentCardIndex
-                    ]["Completed"];
-                    setFinalWorksheet(updateOrders);
-                  }}
-                />
-              </p>
-            );
-          }
-          return (
-            <>
-              {!currentOrder[key]["hidden"] ? (
-                <p>
-                  <span id="key">{key + ": "}</span>{" "}
-                  {currentOrder[key]["value"]}
-                </p>
-              ) : null}
-            </>
-          );
+        <h1>{currentCardIndex + 1 + "/" + finalWorksheet.length}</h1>
+        {worksheetHeaders.map((headerName) => {
+          return orderObjectKeys.map((key) => {
+            if (headerName.value === key) {
+              return (
+                <>
+                  {!currentOrder[key]["hidden"] ? (
+                    <p>
+                      <span id="key">{key + ": "}</span>{" "}
+                      {currentOrder[key]["value"]}
+                    </p>
+                  ) : null}
+                </>
+              );
+            }
+          });
         })}
+
+        <p id="completed">
+          Completed:
+          <input
+            type="checkbox"
+            checked={currentOrder["Completed"]}
+            onChange={() => {
+              var updateOrders = [...finalWorksheet];
+              updateOrders[currentCardIndex]["Completed"] = !updateOrders[
+                currentCardIndex
+              ]["Completed"];
+              setFinalWorksheet(updateOrders);
+            }}
+          />
+        </p>
       </div>
+
       <button id="back" onClick={decrement}>
         Back
       </button>
@@ -157,3 +165,33 @@ const CardWrapper = styled.div`
 `;
 
 export default Step3;
+
+// orderObjectKeys.map((key) => {
+//   if (key === "Completed") {
+//     return (
+//       <p id="completed" key={key}>
+//         Completed:
+//         <input
+//           type="checkbox"
+//           checked={currentOrder["Completed"]}
+//           onChange={() => {
+//             var updateOrders = [...finalWorksheet];
+//             updateOrders[currentCardIndex]["Completed"] = !updateOrders[
+//               currentCardIndex
+//             ]["Completed"];
+//             setFinalWorksheet(updateOrders);
+//           }}
+//         />
+//       </p>
+//     );
+//   }
+//   return (
+//     <>
+//       {!currentOrder[key]["hidden"] ? (
+//         <p>
+//           <span id="key">{key + ": "}</span> {currentOrder[key]["value"]}
+//         </p>
+//       ) : null}
+//     </>
+//   );
+// });
