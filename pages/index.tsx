@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Step1 from "../components/Step1";
 import Step2 from "../components/Step2";
 import Step3 from "../components/Step3";
+import Layout from "../components/Layout";
 import XLSX from "xlsx";
 import { HeaderType, GenericObject } from "../utils/projectInterfaces";
 
@@ -11,22 +12,80 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [worksheet, setWorksheet] = useState<XLSX.WorkSheet>({});
   const [worksheetHeaders, setWorksheetHeaders] = useState<HeaderType[]>([]);
-  const [finalWorksheet, setFinalWorkheet] = useState<GenericObject>({});
+  const [finalWorksheet, setFinalWorkheet] = useState<GenericObject[]>([]);
 
+  //update worksheet
   useEffect(() => {
-    if (worksheet) {
-      getHeaders();
+    if (Object.keys(worksheet).length != 0) {
+      localStorage.setItem(
+        "worksheet",
+        JSON.stringify(XLSX.utils.sheet_to_json(worksheet))
+      );
+
+      //if a worksheet isnt stored in localstorage run the function to get the headers
+      if (worksheetHeaders.length === 0) {
+        console.log("IN HERE LIKE SWIM");
+        getHeaders();
+      }
     }
   }, [worksheet]);
+
+  //update worksheetHeaders
   useEffect(() => {
-    console.log("Final Work Sheet", finalWorksheet);
+    if (worksheetHeaders.length != 0) {
+      localStorage.setItem(
+        "worksheetHeaders",
+        JSON.stringify(worksheetHeaders)
+      );
+    }
+  }, [worksheetHeaders]);
+
+  useEffect(() => {
+    if (finalWorksheet.length != 0) {
+      localStorage.setItem("finalWorksheet", JSON.stringify(finalWorksheet));
+    }
   }, [finalWorksheet]);
 
-  // useEffect(() => {
-  //   if (worksheetHeaders.length > 0) {
-  //     console.log("Headers", worksheetHeaders);
-  //   }
-  // }, [worksheetHeaders]);
+  useEffect(() => {
+    console.log("LOADING");
+    if (typeof window !== "undefined") {
+      try {
+        //getting the local storage worksheet and converting from json to sheets
+        var string_json = JSON.parse(localStorage.getItem("worksheet") || "{}");
+        console.log("TRRUE OR NAH", string_json);
+        console.log("Length?", Object.keys(string_json).length);
+
+        // if there is somethign actually in local storage then update worksheet otherwise do nothing
+        if (Object.keys(string_json).length != 0) {
+          var json_sheet = XLSX.utils.json_to_sheet(string_json);
+          setWorksheet(json_sheet);
+          setCurrentStep(2);
+        }
+
+        //getting the local storage headers and converting from a string back to an array
+        var string_headers = JSON.parse(
+          localStorage.getItem("worksheetHeaders") || "[]"
+        );
+
+        //  console.log("LOCAL STORAGE HEADERS", string_headers);
+        if (string_headers.length != 0) {
+          console.log("LOCAL STORAGE HEADERS", string_headers);
+          setWorksheetHeaders(string_headers);
+        }
+
+        var string_finalWorksheet = JSON.parse(
+          localStorage.getItem("finalWorksheet") || "[]"
+        );
+
+        if (string_finalWorksheet.length != 0) {
+          setFinalWorkheet(string_finalWorksheet);
+        }
+        // setFinalWorkheet(string_object);
+      } catch (err) {
+        console.log("ERROR", err);
+      }
+    }
+  }, []);
 
   //Save worksheet on upload
   const onFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,40 +167,52 @@ export default function Home() {
   };
 
   return (
-    <div>
-      {/* <div>{currentStep}</div>
-      <button
-        onClick={() => {
-          setCurrentStep((prevCount) => {
-            return prevCount - 1;
-          });
-        }}
-      >
-        Go Back
-      </button>
-      <button
-        onClick={() => {
-          setCurrentStep((prevCount) => {
-            return prevCount + 1;
-          });
-        }}
-      >
-        Next
-      </button> */}
+    <Layout currentStep={currentStep} setCurrentStep={setCurrentStep}>
+      <div>
+        {/* <div>{currentStep}</div>
+        <button
+          onClick={() => {
+            setCurrentStep((prevCount) => {
+              return prevCount - 1;
+            });
+          }}
+        >
+          Go Back
+        </button>
+        <button
+          onClick={() => {
+            setCurrentStep((prevCount) => {
+              return prevCount + 1;
+            });
+          }}
+        >
+          Next
+        </button>
+        <button
+          onClick={() => {
+            console.log("WORKSHEET CHECK", worksheet);
+          }}
+        >
+          Test
+        </button> */}
 
-      <Step1 currentStep={currentStep} onFileUpload={onFileUpload} />
-      <Step2
-        currentStep={currentStep}
-        worksheetHeaders={worksheetHeaders}
-        setWorksheetHeaders={setWorksheetHeaders}
-        updateSheetAndCreateObject={updateSheetAndCreateObject}
-      />
+        <Step1 currentStep={currentStep} onFileUpload={onFileUpload} />
+        <Step2
+          currentStep={currentStep}
+          worksheetHeaders={worksheetHeaders}
+          setWorksheetHeaders={setWorksheetHeaders}
+          updateSheetAndCreateObject={updateSheetAndCreateObject}
+        />
 
-      <Step3
-        currentStep={currentStep}
-        finalWorksheet={finalWorksheet}
-        setFinalWorksheet={setFinalWorkheet}
-      />
-    </div>
+        {/* we do this check because we need to wait for finalworksheet to be filled before we load step 3   */}
+        {currentStep === 3 ? (
+          <Step3
+            currentStep={currentStep}
+            finalWorksheet={finalWorksheet}
+            setFinalWorksheet={setFinalWorkheet}
+          />
+        ) : null}
+      </div>
+    </Layout>
   );
 }

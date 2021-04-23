@@ -77,9 +77,11 @@ const Step2: React.FC<Step2Props> = ({
 
 const HeaderEditorWrapper = styled.div`
   width: 600px;
-  margin: 0 auto;
+  /* margin: 0 auto; */
 `;
-const Heading = styled.div``;
+const Heading = styled.div`
+  margin-bottom: 20px;
+`;
 const EditorWrapper = styled.div`
   display: grid;
   justify-content: center;
