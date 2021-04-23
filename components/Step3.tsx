@@ -95,9 +95,14 @@ const Step3: FC<Step3Props> = ({
             );
           }
           return (
-            <p>
-              <span id="key">{key + ": "}</span> {currentOrder[key]["value"]}
-            </p>
+            <>
+              {!currentOrder[key]["hidden"] ? (
+                <p>
+                  <span id="key">{key + ": "}</span>{" "}
+                  {currentOrder[key]["value"]}
+                </p>
+              ) : null}
+            </>
           );
         })}
       </div>
