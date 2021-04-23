@@ -59,6 +59,7 @@ const ResetWrapper = styled.div`
   top: 50px;
   right: 50px;
   text-align: right;
+  color: #db3d2f;
 `;
 
 export default Layout;
